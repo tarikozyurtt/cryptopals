@@ -1,11 +1,11 @@
-package main
+package set1
 
 import (
 	"math"
 	"strings"
 )
 
-// from solution of 0xfe
+// took this function from solution of 0xfe
 func getExpectedFreqForChar(char byte) float64 {
 	// Default value (helps prevent divide-by-zero)
 	value := float64(0.00001)
@@ -86,11 +86,24 @@ func getLossForBuffer(buf []byte) float64 {
 	return loss
 }
 
-func DecryptSingleByteXORBuffer(buf []byte, key byte) []byte {
+func decryptSingleByteXORBuffer(buf []byte, key byte) []byte {
 	result := make([]byte, len(buf))
 	for i := range buf {
 		result[i] = buf[i] ^ key
 	}
 
 	return result
+}
+
+func hammingDistance(buf1, buf2 []byte) float64 {
+	distance := 0
+	for i := range buf1 {
+		xor := buf1[i] ^ buf2[i]
+		for xor > 0 {
+			distance++
+			xor &= xor - 1
+		}
+	}
+
+	return float64(distance)
 }
