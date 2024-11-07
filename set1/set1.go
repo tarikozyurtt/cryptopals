@@ -27,11 +27,11 @@ func XORBuffers(buf1, buf2 string) (string, error) {
 	if len(buf1) != len(buf2) {
 		return "", errors.New("buffers must be of equal length")
 	}
-	raw_bytes1, err := hex.DecodeString(string(buf1))
+	raw_bytes1, err := hex.DecodeString(buf1)
 	if err != nil {
 		return "", err
 	}
-	raw_bytes2, err := hex.DecodeString(string(buf2))
+	raw_bytes2, err := hex.DecodeString(buf2)
 	if err != nil {
 		return "", err
 	}
@@ -46,10 +46,10 @@ func XORBuffers(buf1, buf2 string) (string, error) {
 	return res, nil
 }
 
-func DecryptSingleByteXOR(src string) (string, error) {
+func DecryptSingleByteXOR(src string) ([]byte, error) {
 	raw_bytes, err := hex.DecodeString(src)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	var bestChar byte
@@ -62,13 +62,13 @@ func DecryptSingleByteXOR(src string) (string, error) {
 		}
 	}
 
-	return string(decryptSingleByteXORBuffer(raw_bytes, bestChar)), nil
+	return decryptSingleByteXORBuffer(raw_bytes, bestChar), nil
 }
 
-func findEncryptedStringWithSingleByteXOR(path string) (string, error) {
+func findEncryptedStringWithSingleByteXOR(path string) ([]byte, error) {
 	file, err := os.Open(path)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	defer func() {
 		if err = file.Close(); err != nil {
@@ -84,7 +84,7 @@ func findEncryptedStringWithSingleByteXOR(path string) (string, error) {
 	for scanner.Scan() {
 		raw_bytes, err := hex.DecodeString(scanner.Text())
 		if err != nil {
-			return "", err
+			return nil, err
 		}
 
 		for i := 0; i < 256; i++ {
@@ -97,7 +97,7 @@ func findEncryptedStringWithSingleByteXOR(path string) (string, error) {
 		}
 	}
 
-	return string(decryptSingleByteXORBuffer(bytesToDecrypt, bestChar)), nil
+	return decryptSingleByteXORBuffer(bytesToDecrypt, bestChar), nil
 }
 
 func RepeatingKeyXOR(src, key string) string {
@@ -112,21 +112,21 @@ func RepeatingKeyXOR(src, key string) string {
 	return hex.EncodeToString(result)
 }
 
-func BreakRepeatingKeyXOR(path string) (string, error) {
+func BreakRepeatingKeyXOR(path string) ([]byte, error) {
 	KEYSIZE := 2
 	bestKeySize := 0
 	minDistance := 1000.0
 
 	base64_encoded, err := os.ReadFile(path)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	raw_bytes := make([]byte, base64.StdEncoding.DecodedLen(len(base64_encoded)))
 	n, err := base64.StdEncoding.Decode(raw_bytes, base64_encoded)
 	if err != nil {
 		fmt.Println("decode error:", err)
-		return "", err
+		return nil, err
 	}
 	raw_bytes = raw_bytes[:n]
 
@@ -183,5 +183,5 @@ func BreakRepeatingKeyXOR(path string) (string, error) {
 		result[i] = raw_bytes[i] ^ key[i%len(key)]
 	}
 
-	return string(result), nil
+	return result, nil
 }

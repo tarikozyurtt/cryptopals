@@ -50,7 +50,7 @@ func ApplyFourthChallenge() {
 func ApplyFifthChallenge() {
 	fmt.Println("Challenge - 5")
 	src := `Burning 'em, if you ain't quick and nimble
-  I go crazy when I hear a cymbal`
+I go crazy when I hear a cymbal`
 	key := "ICE"
 
 	res := RepeatingKeyXOR(src, key)
